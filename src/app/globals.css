@@ -8,3 +8,13 @@ body { @apply bg-gradient-to-br from-slate-900 via-indigo-900 to-purple-900 text
 .input { @apply w-full p-3 rounded-lg border border-white/10 bg-white/5 placeholder-slate-300/70 focus:outline-none focus:ring-2 focus:ring-indigo-400/50; }
 .label { @apply flex items-center gap-2 text-sm font-semibold text-slate-200 mb-3; }
 .btn-primary { @apply inline-flex items-center gap-2 bg-gradient-to-r from-fuchsia-500 to-indigo-500 text-white px-6 py-3 rounded-xl font-bold shadow-xl hover:scale-[1.02] transition; }
+
+/* === Corrección de contraste para selects === */
+select, select option {
+  color: #000 !important;
+  background-color: rgba(255, 255, 255, 0.9) !important;
+}
+select:disabled {
+  color: rgba(0, 0, 0, 0.5) !important;
+  background-color: rgba(240, 240, 240, 0.8) !important;
+}
