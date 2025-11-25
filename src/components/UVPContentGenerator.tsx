@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Copy, Sparkles, Target, Users, MessageSquare, LayoutGrid, Video, Edit, Clock } from 'lucide-react';
+import { Copy, Sparkles, Target, Users, MessageSquare, LayoutGrid, Video, Edit, Clock, Star, MousePointer } from 'lucide-react';
 
 // --- TUS DATOS ORIGINALES (ESTRUCTURA INTACTA) ---
 const audiences: any = {
@@ -153,12 +153,25 @@ const topicOptions = [
 ];
 
 // --- FUNCIONES DE GENERACIÓN (Lógica Nueva) ---
-const generateVideoScript = (audience: any, persona: any, comm: any, isYoung: boolean, videoDuration: string, videoFormat: string, customRequest: string) => {
+const generateVideoScript = (
+  audience: any, 
+  persona: any, 
+  comm: any, 
+  isYoung: boolean, 
+  videoDuration: string, 
+  videoFormat: string, 
+  customRequest: string,
+  mainBenefit: string,
+  customCTA: string
+) => {
     const duration = videoDuration || '30-60';
     const format = videoFormat || 'universal';
     const request = customRequest;
     const frustration = persona.frustrations[0];
-    const benefit = comm.influence[0];
+    // PRIORIDAD: Usar el beneficio personalizado si existe, si no el de la audiencia
+    const benefit = mainBenefit.trim() ? mainBenefit : comm.influence[0];
+    // PRIORIDAD: Usar CTA personalizado si existe
+    const ctaText = customCTA.trim() ? customCTA : 'Más info en bio';
 
     const formatStyle: any = {
         'tiktok': { ritmo: '⚡ Rápido (cortes 1-2s)', hook: 'Disruptivo', musica: 'Trending Sound' },
@@ -190,14 +203,14 @@ TEXTO: ✅ ${comm.keywords.split('|')[0]}
 
 4. CTA (Final):
 VISUAL: Logo UVP + Texto grande.
-AUDIO: "Más info en el link de la bio"
+AUDIO: "${ctaText}"
 ------------------------------------------------------------------
 🎵 MÚSICA: ${style.musica} | 🎭 TONO: ${comm.writing[0]}
 `;
     return {
         headline: `🎬 Guion de Video (${format})`,
-        body: detailedScript, // Usamos body para mostrar el guion completo en el UI existente
-        cta: 'Ver link en bio',
+        body: detailedScript, 
+        cta: ctaText,
         visualSuggestions: `Estilo: ${style.hook}\nRitmo: ${style.ritmo}\nEstética: ${comm.style[0]}`,
         hashtags: `#UVP #${audience.name.replace(/\s+/g,'')} #Video`,
         tone: comm.writing[0],
@@ -206,10 +219,20 @@ AUDIO: "Más info en el link de la bio"
     };
 };
 
-const generateRegularContent = (audience: any, persona: any, comm: any, isYoung: boolean, contentType: string, customRequest: string) => {
+const generateRegularContent = (
+  audience: any, 
+  persona: any, 
+  comm: any, 
+  isYoung: boolean, 
+  contentType: string, 
+  customRequest: string,
+  mainBenefit: string,
+  customCTA: string
+) => {
     const request = customRequest;
-    const benefit = comm.influence[0];
-    const cta = `${isYoung ? 'Conoce' : 'Conozca'} más en bio 🔗`;
+    // PRIORIDAD: Usar beneficio y CTA personalizados
+    const benefit = mainBenefit.trim() ? mainBenefit : comm.influence[0];
+    const cta = customCTA.trim() ? customCTA : `${isYoung ? 'Conoce' : 'Conozca'} más en bio 🔗`;
 
     let body = '';
     if (contentType === 'carrusel') {
@@ -251,16 +274,18 @@ const UVPContentGenerator: React.FC = () => {
   const [selectedPlatform, setSelectedPlatform] = useState('');
   const [contentType, setContentType] = useState('');
   
-  // Nuevos Estados (V2)
+  // Nuevos Estados (V2) - AHORA SÍ COMPLETOS
   const [videoFormat, setVideoFormat] = useState('');
   const [videoDuration, setVideoDuration] = useState('');
   const [customRequest, setCustomRequest] = useState('');
   const [contentTopic, setContentTopic] = useState('');
+  const [mainBenefit, setMainBenefit] = useState(''); // Recuperado
+  const [customCTA, setCustomCTA] = useState(''); // Recuperado
 
   const [generatedContent, setGeneratedContent] = useState<any>(null);
 
   const generateContent = () => {
-    // Validación mejorada
+    // Validación
     if (!selectedAudience || !selectedPersona || !selectedPlatform || !contentType) {
       alert('Por favor completa: Audiencia, Buyer Persona, Plataforma y Tipo de Contenido.');
       return;
@@ -281,20 +306,37 @@ const UVPContentGenerator: React.FC = () => {
 
     let content;
     if (contentType === 'video-corto') {
-        content = generateVideoScript(audience, persona, comm, isYoung, videoDuration, videoFormat, requestFinal);
+        content = generateVideoScript(
+          audience, 
+          persona, 
+          comm, 
+          isYoung, 
+          videoDuration, 
+          videoFormat, 
+          requestFinal, 
+          mainBenefit, 
+          customCTA
+        );
     } else {
-        content = generateRegularContent(audience, persona, comm, isYoung, contentType, requestFinal);
+        content = generateRegularContent(
+          audience, 
+          persona, 
+          comm, 
+          isYoung, 
+          contentType, 
+          requestFinal,
+          mainBenefit, 
+          customCTA
+        );
     }
     setGeneratedContent(content);
   };
-
-  const copyToClipboard = (text: string) => navigator.clipboard.writeText(text ?? '');
 
   return (
     <main className="min-h-screen p-6">
       <motion.div variants={container} initial="hidden" animate="show" className="max-w-7xl mx-auto space-y-6">
         
-        {/* HEADER ORIGINAL */}
+        {/* HEADER */}
         <motion.header variants={item} className="glass p-8">
           <div className="flex items-center gap-4 mb-4">
             <div className="p-3 rounded-xl bg-gradient-to-tr from-fuchsia-500/30 to-indigo-500/30 border border-white/10">
@@ -307,7 +349,7 @@ const UVPContentGenerator: React.FC = () => {
           </div>
         </motion.header>
 
-        {/* SELECTORES PRINCIPALES (GRID ORIGINAL) */}
+        {/* SELECTORES PRINCIPALES */}
         <motion.section variants={item} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <motion.div whileHover={hoverPop} className="glass p-6">
             <label className="label"><Users className="w-5 h-5 text-blue-300" /> Audiencia</label>
@@ -342,7 +384,7 @@ const UVPContentGenerator: React.FC = () => {
           </motion.div>
         </motion.section>
 
-        {/* SECCIÓN NUEVA: OPCIONES DE VIDEO (SOLO APARECE SI ES VIDEO) */}
+        {/* SECCIÓN VIDEO (CONDICIONAL) */}
         <AnimatePresence>
             {contentType === 'video-corto' && (
                 <motion.section 
@@ -369,41 +411,64 @@ const UVPContentGenerator: React.FC = () => {
             )}
         </AnimatePresence>
 
-        {/* SECCIÓN NUEVA: PERSONALIZACIÓN (INTEGRADA AL DISEÑO DARK) */}
+        {/* SECCIÓN PERSONALIZACIÓN (AHORA SÍ CON LOS CAMPOS FALTANTES) */}
         <motion.section variants={item} className="glass p-6">
             <div className="flex items-center gap-2 mb-4 text-indigo-300">
                 <Edit className="w-5 h-5" />
                 <h3 className="font-bold">Personaliza tu Contenido</h3>
             </div>
+            
+            {/* Fila 1: Solicitud Principal */}
+            <div className="mb-4">
+                <label className="label mb-2 block">📝 Solicitud Principal (¿Qué quieres comunicar?)</label>
+                <textarea 
+                    value={customRequest}
+                    onChange={(e) => setCustomRequest(e.target.value)}
+                    placeholder="Ej: Promocionar Ingeniería Industrial destacando laboratorios..."
+                    className="input w-full h-24 py-3 resize-none"
+                />
+            </div>
+
+            {/* Fila 2: Opcionales (Grid de 3 columnas) */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="md:col-span-2">
-                    <label className="label mb-2 block">📝 Solicitud Principal (¿Qué quieres comunicar?)</label>
-                    <textarea 
-                        value={customRequest}
-                        onChange={(e) => setCustomRequest(e.target.value)}
-                        placeholder="Ej: Promocionar Ingeniería Industrial destacando laboratorios..."
-                        className="input w-full h-24 py-3 resize-none"
-                    />
-                </div>
                 <div>
-                    <label className="label mb-2 block">🎯 Tema Rápido</label>
-                    <select value={contentTopic} onChange={(e) => setContentTopic(e.target.value)} className="input w-full mb-4">
-                        <option value="">Opcional...</option>
+                    <label className="label mb-2 block">🎯 Tema (opcional)</label>
+                    <select value={contentTopic} onChange={(e) => setContentTopic(e.target.value)} className="input w-full">
+                        <option value="">Seleccionar tema...</option>
                         {topicOptions.map((t, i) => <option key={i} value={t}>{t}</option>)}
                     </select>
-                    <p className="text-xs text-slate-400">Llena la solicitud principal O selecciona un tema rápido.</p>
+                </div>
+                <div>
+                     <label className="label mb-2 block flex items-center gap-1"><Star className="w-3 h-3 text-yellow-400" /> Beneficio Principal</label>
+                     <input 
+                        type="text" 
+                        value={mainBenefit} 
+                        onChange={(e) => setMainBenefit(e.target.value)}
+                        placeholder="Ej: 90% empleabilidad"
+                        className="input w-full"
+                     />
+                </div>
+                <div>
+                     <label className="label mb-2 block flex items-center gap-1"><MousePointer className="w-3 h-3 text-cyan-400" /> CTA Personalizado</label>
+                     <input 
+                        type="text" 
+                        value={customCTA} 
+                        onChange={(e) => setCustomCTA(e.target.value)}
+                        placeholder="Ej: Agenda tu visita"
+                        className="input w-full"
+                     />
                 </div>
             </div>
         </motion.section>
 
-        {/* BOTÓN GENERAR (ESTILO ORIGINAL) */}
+        {/* BOTÓN GENERAR */}
         <motion.div variants={item} className="text-center">
           <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }} onClick={generateContent} className="btn-primary">
             <Sparkles className="w-5 h-5" /> Generar Contenido V2
           </motion.button>
         </motion.div>
 
-        {/* RESULTADOS (ADAPTADO PARA MOSTRAR GUIONES LARGOS) */}
+        {/* RESULTADOS */}
         <AnimatePresence>
           {generatedContent && (
             <motion.section key="content" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ type: 'spring', stiffness: 110, damping: 18 }} className="glass p-8">
@@ -421,7 +486,7 @@ const UVPContentGenerator: React.FC = () => {
                   <p className="font-semibold text-lg">{generatedContent.headline}</p>
                 </div>
 
-                {/* Cuerpo / Guion (Área Principal) */}
+                {/* Cuerpo / Guion */}
                 <div className="glass p-4 lg:col-span-2 bg-black/20">
                   <div className="flex items-center justify-between mb-2">
                     <h3 className="font-bold text-indigo-300">{generatedContent.isVideo ? '🎬 Guion Detallado' : '📝 Cuerpo del Mensaje'}</h3>
@@ -432,7 +497,7 @@ const UVPContentGenerator: React.FC = () => {
                   </pre>
                 </div>
 
-                {/* Detalles Adicionales */}
+                {/* Detalles */}
                 <div className="glass p-4">
                   <h3 className="font-bold mb-2 text-indigo-300">🎯 Call-to-Action</h3>
                   <p className="font-semibold">{generatedContent.cta}</p>
