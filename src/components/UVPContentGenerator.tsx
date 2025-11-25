@@ -480,16 +480,6 @@ const audiences: any = {
         ],
         emojis: '🎓 📚 🚀 💪 🌟 👥',
         keywords: 'Bienestar | Ambición | Comunidad | Crecimiento | Éxito'
-        ],
-        style: [
-          'Colores vibrantes universitarios',
-          'Diseño moderno y dinámico',
-          'Imágenes de estudiantes reales',
-          'Profesional pero juvenil',
-          'Balance entre serio y social'
-        ],
-        emojis: '🎓 📚 🚀 💪 🌟 👥',
-        keywords: 'Bienestar | Ambición | Comunidad | Crecimiento | Éxito'
       },
       personas: {
         'pre-universitario': {
