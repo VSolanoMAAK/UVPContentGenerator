@@ -1,11 +1,13 @@
 'use client';
 
-import React, { useState } from 'react';
+// Se añaden Video y Edit a las importaciones de lucide-react
+import React, { useState, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Copy, Sparkles, Target, Users, MessageSquare, LayoutGrid } from 'lucide-react';
+import { Copy, Sparkles, Target, Users, MessageSquare, LayoutGrid, Video, Edit } from 'lucide-react';
 
-// Audiences (inyectado desde tu script)
-const audiences = {
+// --- DATOS EXISTENTES (Manteniendo la estructura detallada de tu archivo) ---
+// **NOTA IMPORTANTE:** He mantenido los datos de audiences y platforms tal cual estaban en tu archivo original.
+const audiences: any = {
     'full-audience': {
       name: 'Audiencia General',
       description: 'Analíticos, Geniales y Sociales',
@@ -478,6 +480,16 @@ const audiences = {
         ],
         emojis: '🎓 📚 🚀 💪 🌟 👥',
         keywords: 'Bienestar | Ambición | Comunidad | Crecimiento | Éxito'
+        ],
+        style: [
+          'Colores vibrantes universitarios',
+          'Diseño moderno y dinámico',
+          'Imágenes de estudiantes reales',
+          'Profesional pero juvenil',
+          'Balance entre serio y social'
+        ],
+        emojis: '🎓 📚 🚀 💪 🌟 👥',
+        keywords: 'Bienestar | Ambición | Comunidad | Crecimiento | Éxito'
       },
       personas: {
         'pre-universitario': {
@@ -529,187 +541,654 @@ const contentTypes: Record<string, string> = {
   'anuncio': 'Anuncio Pagado'
 };
 
+// --- NUEVOS DATOS V2.0 (Para video y opciones) ---
+const videoFormats: Record<string, string> = {
+    'tiktok': 'TikTok',
+    'reel': 'Instagram Reel',
+    'universal': 'Universal (TikTok + Reel)'
+};
+
+const videoDurations: Record<string, string> = {
+    '15-30': '15-30 segundos (Corto)',
+    '30-60': '30-60 segundos (Estándar)',
+    '60-90': '60-90 segundos (Largo)'
+};
+
+const topicOptions = [
+    'Promoción de carrera específica',
+    'Evento (Open House, Feria)',
+    'Becas y financiamiento',
+    'Instalaciones y tecnología',
+    'Vida universitaria',
+    'Testimonios y casos de éxito',
+    'Proceso de admisión',
+    'Otro (especificar en solicitud)'
+];
+
+// --- FUNCIONES DE GENERACIÓN V2.0 ---
+
+// NOTA: Se utilizan las interfaces de datos de tu archivo original
+const generateVideoScript = (
+    audience: any,
+    persona: any,
+    comm: any,
+    isYoung: boolean,
+    videoDuration: string,
+    videoFormat: string,
+    customRequest: string,
+    mainBenefit: string,
+    customCTA: string
+) => {
+    const duration = videoDuration;
+    const format = videoFormat;
+    const request = customRequest;
+    // Usamos el primer elemento de influence como beneficio por defecto
+    const benefit = mainBenefit || comm.influence[0] || 'Un beneficio clave';
+    const cta = customCTA || 'Más info en bio';
+
+    const formatStyle: any = {
+        'tiktok': {
+            ritmo: 'ultra rápido (cortes cada 1-2s)',
+            texto: 'Mucho texto + emojis',
+            hook: 'Agresivo y disruptivo',
+            musica: 'Trending sound (CRÍTICO)',
+            cta: 'Comenta "INFO" para más',
+            aesthetic: 'Crudo, auténtico, trendy'
+        },
+        'reel': {
+            ritmo: 'fluido (cortes cada 2-3s)',
+            texto: 'Menos texto, más limpio',
+            hook: 'Aspiracional y estético',
+            musica: 'Audio original o trending',
+            cta: 'Guarda este reel',
+            aesthetic: 'Cuidado, branded, pulido'
+        },
+        'universal': {
+            ritmo: 'balanceado (cortes cada 2s)',
+            texto: 'Texto moderado + emojis clave',
+            hook: 'Impactante y versátil',
+            musica: 'Trending que funcione en ambos',
+            cta: 'Link en bio',
+            aesthetic: 'Profesional pero accesible'
+        }
+    };
+
+    const style = formatStyle[format];
+
+    let hookTime, problemTime, solutionTime, ctaTime;
+    if (duration === '15-30') {
+        hookTime = '0-3s'; problemTime = '3-8s'; solutionTime = '8-12s'; ctaTime = '12-15s';
+    } else if (duration === '30-60') {
+        hookTime = '0-3s'; problemTime = '3-15s'; solutionTime = '15-25s'; ctaTime = '25-30s';
+    } else {
+        hookTime = '0-5s'; problemTime = '5-25s'; solutionTime = '25-55s'; ctaTime = '55-60s';
+    }
+
+    // Usamos la primera frustración disponible.
+    const frustration = persona.frustrations[0] || 'la incertidumbre sobre el futuro';
+
+    // GUION SIMPLE
+    const simpleScript = `🎬 GUION ${videoFormats[format].toUpperCase()} - ${videoDurations[duration]}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📍 TEMA: ${request}
+👤 AUDIENCIA: ${persona.name} (${persona.age})
+🔑 BENEFICIO CLAVE: ${benefit}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎣 GANCHO (${hookTime}):
+"¿${frustration}?" ${isYoung ? '😰' : '🤔'}
+${format === 'tiktok' ? '[Música: Drop fuerte]' : '[Música: Inicio impactante]'}
+
+⚠️ PROBLEMA (${problemTime}):
+"${isYoung ? 'Sabemos' : 'Sabemos'} que ${frustration.toLowerCase()}..."
+${format === 'tiktok' ? '❌ [Texto en pantalla: NO MÁS]' : ''}
+${duration === '30-60' || duration === '60-90' ? `\n"Pero en UVP, esto cambia. Tenemos la ${benefit}"` : ''}
+
+✅ SOLUCIÓN (${solutionTime}):
+"En UVP, resolvemos esto con:"
+${format === 'tiktok' ? '⚡' : '✨'} ${benefit}
+${comm.influence[1] ? `${format === 'tiktok' ? '🎯' : '💫'} ${comm.influence[1]}` : ''}
+${duration === '60-90' ? `${format === 'tiktok' ? '🔥' : '🌟'} ${comm.influence[2] || 'Resultados comprobables'}` : ''}
+
+${duration === '60-90' ? `\n💬 TESTIMONIO/DATO (45-55s):\n"[Insertar dato específico o testimonio breve sobre logros]" - ${comm.writing[1]}\n` : ''}
+
+📲 CTA (${ctaTime}):
+"${cta} ${comm.emojis.split(' ')[0]}"
+${style.cta}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📝 NOTAS DE PRODUCCIÓN:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎵 Música: ${style.musica}
+⚡ Ritmo: ${style.ritmo}
+🎨 Estética: ${style.aesthetic}
+🎭 Tono: ${comm.writing[0]}`;
+
+    // GUION DETALLADO
+    const detailedScript = `🎬 GUION DETALLADO ${videoFormats[format].toUpperCase()} - ${videoDurations[duration]}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📍 TEMA: ${request}
+👤 AUDIENCIA: ${audience.name} - ${persona.name}
+📱 PLATAFORMA: ${videoFormats[format]}
+⏱️ DURACIÓN: ${videoDurations[duration]}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+| TIEMPO | VISUAL | AUDIO/TEXTO | NOTAS |
+| :---: | :--- | :--- | :--- |
+| ${hookTime} | ${format === 'tiktok' ? 'Zoom rápido a persona' : 'Plano medio estético'} | **HOOK** "¿${frustration}?" | **CRÍTICO:** Gancho debe capturar la atención en <3s. |
+| | ${format === 'tiktok' ? 'Cara preocupada' : 'Expresión pensativa'} | ${format === 'tiktok' ? '[Texto: ❌ NO MÁS]' : '[Subtítulo elegante]'} | Música: ${format === 'tiktok' ? 'Drop fuerte' : 'Inicio impactante'} |
+| ${problemTime} | ${format === 'tiktok' ? 'Montaje rápido clips' : 'B-roll fluido campus'} | Narración: "${frustration.toLowerCase()} es real..." | Ritmo: ${style.ritmo} |
+| | ${format === 'tiktok' ? 'Imágenes del problema' : 'Escenas cotidianas'} | **Tono:** ${comm.writing[0]} | Texto en pantalla: ${style.texto} |
+| ${solutionTime} | ${format === 'tiktok' ? 'Cortes ultra rápidos' : 'Secuencia cohesiva'} | "En UVP, tienes la solución:" | Mostrar el beneficio |
+| | - ${format === 'tiktok' ? 'Instalación clave 1' : 'Laboratorio tech'} | ✅ ${benefit} | ${comm.influence[1]} |
+| | - ${format === 'tiktok' ? 'Instalación clave 2' : 'Estudiantes logrando metas'} | ✅ ${comm.influence[1]} | ${comm.influence[2]} |
+| | ${format === 'tiktok' ? '[Texto grande: ✅ RESULTADOS]' : '[Overlays sutiles]'} | [Música: Pico aspiracional] | |
+${duration === '60-90' ? `| 45-55s | ${format === 'reel' ? 'Testimonio elegante' : 'Testimonio rápido'} | Voz estudiante/egresado: "[Dato específico de éxito]" | **Dato:** Usar evidencia verificable |` : ''}
+| ${ctaTime} | ${format === 'tiktok' ? 'Logo UVP animado' : 'Logo UVP elegante'} | **CTA** "${cta}" | Call to Action claro. |
+| | ${format === 'tiktok' ? '+ Texto CTA grande' : '+ CTA sutil'} | ${style.cta} | Finalizar con el logo. |
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📋 ESPECIFICACIONES TÉCNICAS:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎵 AUDIO: ${style.musica} | 💬 SUBTÍTULOS: **OBLIGATORIOS**
+🎨 ESTILO: Estética ${style.aesthetic}. Colores: ${audience.color}.
+📐 FORMATO: 9:16 (vertical).
+🎯 CÓDIGOS DE COMUNICACIÓN: Usar ${comm.influence[0]}. Evitar ${audience.name === 'Audiencia General' ? 'Promesas exageradas' : 'Ser muy formal o aburrido'}.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
+
+    return {
+        headline: `🎬 Guion de Video ${videoFormats[format]} - ${videoDurations[duration]}`,
+        simpleScript: simpleScript,
+        detailedScript: detailedScript,
+        format: videoFormats[format],
+        duration: videoDurations[duration],
+        platform: videoFormats[format],
+        emojis: comm.emojis,
+        isVideo: true,
+        body: simpleScript
+    };
+};
+
+// Función para contenido regular (Post, Carrusel, Historia, Anuncio)
+const generateRegularContent = (
+    audience: any,
+    persona: any,
+    comm: any,
+    isYoung: boolean,
+    contentType: string,
+    customRequest: string,
+    contentTopic: string,
+    mainBenefit: string,
+    customCTA: string
+) => {
+    const request = customRequest;
+    const topic = contentTopic || 'Educación Superior';
+    const benefit = mainBenefit || comm.influence[0] || 'Un beneficio clave de la universidad';
+    const cta = customCTA || `${isYoung ? 'Conoce' : 'Conozca'} más en bio 🔗`;
+
+    let headline, body, visualSuggestions, hashtags;
+
+    // Usamos el primer objetivo de la persona como base si no hay request
+    const mainGoal = persona.goals[0] || 'tener una carrera exitosa';
+    const frustration = persona.frustrations[0] || 'la falta de oportunidades';
+
+    if (contentType === 'post-organico' || contentType === 'anuncio') {
+        headline = `${request} | ${audience.name}`;
+        body = `**¡ALERTA!** ¿${isYoung ? 'Estás' : 'Está'} buscando ${mainGoal.toLowerCase()}? ${comm.emojis.split(' ')[0]}
+
+**El Problema:** Sabemos que ${frustration.toLowerCase()} es una preocupación real.
+**La Solución UVP:** En lugar de eso, en UVP te ofrecemos:
+1. ✅ ${benefit}
+2. ✅ ${comm.influence[1] || 'Logros comprobables'}
+3. ✅ ${comm.influence[2] || 'Un camino claro al éxito'}
+
+**Tono:** ${comm.writing[0].toLowerCase()} y **focalizado en:** ${comm.writing[1].toLowerCase()}.
+
+**¿Listo/a para dejar atrás ${frustration.toLowerCase()}?**
+👉 ${cta}`;
+        visualSuggestions = `📸 Imagen/Arte Sugerido:
+- **Estilo:** ${comm.style[0]} y ${comm.style[2]}
+- **Color Dominante:** ${audience.color} (para atraer la audiencia)
+- **Muestra:** ${topic || request}
+- **Regla:** Sin sobrecarga de texto. Profesional sin ostentación.`;
+        hashtags = `#UVP #${audience.name.replace(/\s+/g, '')} #${topic.replace(/\s+/g, '') || 'Universidad'} #${comm.keywords.split(' | ')[0] || 'Educacion'}`;
+    } else if (contentType === 'historia') {
+        headline = `Historia: ${request}`;
+        body = `SLIDE 1 (POLL/PREGUNTA): "¿Te preocupa ${frustration.toLowerCase()}?" ❌
+SLIDE 2 (BENEFICIO): "En UVP, esto no pasa: ${benefit}" ✅
+SLIDE 3 (RESULTADOS): "Nuestra clave: ${comm.influence[1]}" 🎯
+SLIDE 4 (CTA): **¡Desliza para saber cómo ${mainGoal.toLowerCase()}!**
+SLIDE 5 (LINK): "${cta}"`;
+        visualSuggestions = `📱 Stories:
+- Vertical 9:16.
+- Usar stickers interactivos (Poll/Pregunta).
+- **Tipografía:** ${comm.style[0]} - legible.
+- **Color:** Usar tonos de ${audience.color}.`;
+        hashtags = `No aplica (Stories)`;
+    } else if (contentType === 'carrusel') {
+        headline = `Carrusel Educativo: ${request}`;
+        body = `SLIDE 1 (Título): "${request}" 💡
+SLIDE 2 (Problema): "¿Te frustra ${frustration.toLowerCase()}?" 😠
+SLIDE 3-5 (Solución UVP):
+  - SLIDE 3: **Módulo 1:** ${benefit}
+  - SLIDE 4: **Módulo 2:** ${comm.influence[1]}
+  - SLIDE 5: **Módulo 3:** ${comm.influence[2]}
+SLIDE 6 (CTA): ¡No dejes pasar esta oportunidad!
+SLIDE 7 (Final): "${cta}"`;
+        visualSuggestions = `🎨 Carrusel:
+- **Estilo:** ${comm.style[1]} - Diseño estructurado.
+- **Color:** ${audience.color} (para branding).
+- Usar iconos consistentes en cada slide.`;
+        hashtags = `#UVP #${audience.name.replace(/\s+/g, '')} #Carrusel #${topic.replace(/\s+/g, '')}`;
+    }
+
+    return {
+        headline: headline,
+        body: body,
+        cta: cta,
+        visualSuggestions: visualSuggestions,
+        hashtags: hashtags,
+        tone: comm.writing[0] || 'Eficiente y directa',
+        emojis: comm.emojis || '',
+        isVideo: false
+    };
+};
+
+// --- COMPONENTE PRINCIPAL (Integrando nuevos estados y JSX) ---
+
 const container = {
-  hidden: { opacity: 0 },
-  show: { opacity: 1, transition: { staggerChildren: 0.06, delayChildren: 0.08 } }
+    hidden: { opacity: 0 },
+    show: { opacity: 1, transition: { staggerChildren: 0.06, delayChildren: 0.08 } }
 };
 
 const item = {
-  hidden: { opacity: 0, y: 12 },
-  show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 120, damping: 14 } }
+    hidden: { opacity: 0, y: 12 },
+    show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 120, damping: 14 } }
 };
 
 const hoverPop = { scale: 1.02, transition: { type: 'spring', stiffness: 300, damping: 20 } };
 
+
 const UVPContentGenerator: React.FC = () => {
-  const [selectedAudience, setSelectedAudience] = useState('');
-  const [selectedPersona, setSelectedPersona] = useState('');
-  const [selectedPlatform, setSelectedPlatform] = useState('');
-  const [contentType, setContentType] = useState('');
-  const [generatedContent, setGeneratedContent] = useState<any>(null);
+    const [selectedAudience, setSelectedAudience] = useState('');
+    const [selectedPersona, setSelectedPersona] = useState('');
+    const [selectedPlatform, setSelectedPlatform] = useState('');
+    const [contentType, setContentType] = useState('');
+    const [generatedContent, setGeneratedContent] = useState<any>(null);
 
-  const generateContent = () => {
-    if (!selectedAudience || !selectedPersona || !selectedPlatform || !contentType) {
-      alert('Por favor selecciona todos los campos');
-      return;
-    }
-    const audience: any = (audiences as any)[selectedAudience];
-    const persona: any = audience.personas[selectedPersona];
-    const platform = (platforms as any)[selectedPlatform];
-    const comm = audience.communication;
+    // --- NUEVOS ESTADOS V2.0 ---
+    const [videoFormat, setVideoFormat] = useState('');
+    const [videoDuration, setVideoDuration] = useState('');
+    const [customRequest, setCustomRequest] = useState('');
+    const [contentTopic, setContentTopic] = useState('');
+    const [mainBenefit, setMainBenefit] = useState('');
+    const [customCTA, setCustomCTA] = useState('');
+    const [isGenerating, setIsGenerating] = useState(false);
+    // ---------------------------
 
-    const content = {
-      headline: `${persona.goals?.[0] || 'Objetivo principal'} - ${audience.name}`,
-      body: `¿Buscas una universidad que realmente ${(persona.goals?.[0]||'cumpla lo que promete').toLowerCase()}?\n\n✅ ${comm.influence?.[0]||''}\n✅ ${comm.influence?.[2]||''}\n\nEn UVP entendemos que ${(persona.frustrations?.[0]||'la incertidumbre').toLowerCase()} es una preocupación real.`,
-      cta: `Conoce más en el enlace de nuestra bio 🔗`,
-      visualSuggestions: `📸 Imagen sugerida:\n- ${comm.style?.[0]||''}\n- ${comm.style?.[1]||''}\n- ${comm.style?.[2]||''}`,
-      hashtags: `#UVP #${audience.name.replace(/\s+/g,'')} #${(persona.name||'Persona').split(' ')[0]} #EducaciónSuperior #Universidad`,
-      tone: (comm.writing?.[0]||'') + ' - ' + (comm.writing?.[2]||''),
-      emojis: comm.emojis || ''
+    const selectedAudienceData = useMemo(() => audiences[selectedAudience], [selectedAudience]);
+    const selectedPersonaData = useMemo(() => selectedAudienceData?.personas[selectedPersona], [selectedAudienceData, selectedPersona]);
+    const isYoung = selectedPersonaData?.age.includes('16-17') || selectedPersonaData?.age.includes('18-24');
+
+    const generateContent = useCallback(() => {
+        if (!selectedAudience || !selectedPersona || !selectedPlatform || !contentType || !customRequest.trim()) {
+            alert('Por favor completa: Audiencia, Buyer Persona, Plataforma, Tipo de Contenido y la Solicitud Principal.');
+            return;
+        }
+
+        if (contentType === 'video-corto' && (!videoFormat || !videoDuration)) {
+            alert('Por favor selecciona formato y duración del video.');
+            return;
+        }
+
+        setIsGenerating(true);
+
+        setTimeout(() => {
+            const audience = audiences[selectedAudience];
+            const persona = audience.personas[selectedPersona];
+            const comm = audience.communication;
+
+            let content;
+
+            if (contentType === 'video-corto') {
+                content = generateVideoScript(
+                    audience,
+                    persona,
+                    comm,
+                    isYoung,
+                    videoDuration,
+                    videoFormat,
+                    customRequest,
+                    mainBenefit,
+                    customCTA
+                );
+            } else {
+                content = generateRegularContent(
+                    audience,
+                    persona,
+                    comm,
+                    isYoung,
+                    contentType,
+                    customRequest,
+                    contentTopic,
+                    mainBenefit,
+                    customCTA
+                );
+            }
+
+            setGeneratedContent(content);
+            setIsGenerating(false);
+        }, 800);
+    }, [selectedAudience, selectedPersona, selectedPlatform, contentType, customRequest, videoFormat, videoDuration, contentTopic, mainBenefit, customCTA, isYoung]);
+
+    const copyToClipboard = (text: string) => {
+        navigator.clipboard.writeText(text).then(() => {
+            alert('¡Copiado al portapapeles!');
+        }).catch(() => {
+            alert('Error al copiar. Por favor intenta de nuevo.');
+        });
     };
-    setGeneratedContent(content);
-  };
 
-  const copyToClipboard = (text: string) => navigator.clipboard.writeText(text ?? '');
+    return (
+        // Se cambian las clases de estilo 'glass' por un estilo más limpio (v2.0)
+        <main className="min-h-screen p-4 md:p-6 bg-gray-50 text-gray-800">
+            <motion.div variants={container} initial="hidden" animate="show" className="max-w-7xl mx-auto space-y-6">
+                
+                {/* Header */}
+                <motion.header variants={item} className="bg-white rounded-2xl shadow-lg p-6 md:p-8">
+                    <div className="flex items-center gap-4 mb-4">
+                        <div className="p-3 rounded-xl bg-purple-100 border border-purple-200">
+                            <Sparkles className="w-8 h-8 text-purple-600" />
+                        </div>
+                        <div>
+                            <h1 className="text-2xl md:text-4xl font-bold tracking-tight text-gray-900">UVP Content Generator v2.0</h1>
+                            <p className="text-sm md:text-base text-gray-600">Generador de Contenidos basado en Audiencias y Buyer Personas</p>
+                        </div>
+                    </div>
+                </motion.header>
 
-  return (
-    <main className="min-h-screen p-6">
-      <motion.div variants={container} initial="hidden" animate="show" className="max-w-7xl mx-auto space-y-6">
-        <motion.header variants={item} className="glass p-8">
-          <div className="flex items-center gap-4 mb-4">
-            <div className="p-3 rounded-xl bg-gradient-to-tr from-fuchsia-500/30 to-indigo-500/30 border border-white/10">
-              <Sparkles className="w-8 h-8 text-fuchsia-300" />
-            </div>
-            <div>
-              <h1 className="text-4xl font-bold tracking-tight">UVP Content Generator</h1>
-              <p className="text-slate-300">Generador de Contenidos basado en Audiencias y Buyer Personas</p>
-            </div>
-          </div>
-        </motion.header>
+                {/* Selección de Audiencia y Plataforma (Mantenemos la estructura de 4 columnas) */}
+                <motion.section variants={item} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    
+                    {/* Audiencia */}
+                    <motion.div whileHover={hoverPop} className="bg-white rounded-xl shadow-md p-6">
+                        <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3"><Users className="w-5 h-5 text-blue-600" /> Audiencia *</label>
+                        <select value={selectedAudience} onChange={(e) => { setSelectedAudience(e.target.value); setSelectedPersona(''); setGeneratedContent(null); }} className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none">
+                            <option value="">Seleccionar...</option>
+                            {Object.entries(audiences).map(([key, aud]: any) => (<option key={key} value={key}>{aud.name}</option>))}
+                        </select>
+                    </motion.div>
 
-        <motion.section variants={item} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <motion.div whileHover={hoverPop} className="glass p-6">
-            <label className="label"><Users className="w-5 h-5 text-blue-300" /> Audiencia</label>
-            <select value={selectedAudience} onChange={(e) => { setSelectedAudience(e.target.value); setSelectedPersona(''); }} className="input">
-              <option value="">Seleccionar...</option>
-              {Object.entries(audiences as any).map(([key, aud]: any) => (<option key={key} value={key}>{aud.name}</option>))}
-            </select>
-          </motion.div>
+                    {/* Buyer Persona */}
+                    <motion.div whileHover={hoverPop} className="bg-white rounded-xl shadow-md p-6">
+                        <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3"><Target className="w-5 h-5 text-green-600" /> Buyer Persona *</label>
+                        <select value={selectedPersona} onChange={(e) => { setSelectedPersona(e.target.value); setGeneratedContent(null); }} disabled={!selectedAudience} className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-green-500 focus:outline-none disabled:bg-gray-100 disabled:opacity-70">
+                            <option value="">Seleccionar...</option>
+                            {selectedAudience && Object.entries(audiences[selectedAudience].personas).map(([key, persona]: any) => (<option key={key} value={key}>{persona.name}</option>))}
+                        </select>
+                    </motion.div>
 
-          <motion.div whileHover={hoverPop} className="glass p-6">
-            <label className="label"><Target className="w-5 h-5 text-emerald-300" /> Buyer Persona</label>
-            <select value={selectedPersona} onChange={(e) => setSelectedPersona(e.target.value)} disabled={!selectedAudience} className="input disabled:opacity-60">
-              <option value="">Seleccionar...</option>
-              {selectedAudience && Object.entries((audiences as any)[selectedAudience].personas).map(([key, persona]: any) => (<option key={key} value={key}>{persona.name}</option>))}
-            </select>
-          </motion.div>
+                    {/* Plataforma */}
+                    <motion.div whileHover={hoverPop} className="bg-white rounded-xl shadow-md p-6">
+                        <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3"><MessageSquare className="w-5 h-5 text-purple-600" /> Plataforma *</label>
+                        <select value={selectedPlatform} onChange={(e) => { setSelectedPlatform(e.target.value); setGeneratedContent(null); }} className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:outline-none">
+                            <option value="">Seleccionar...</option>
+                            {Object.entries(platforms).map(([key, plat]: any) => (<option key={key} value={key}>{plat.icon} {plat.name}</option>))}
+                        </select>
+                    </motion.div>
 
-          <motion.div whileHover={hoverPop} className="glass p-6">
-            <label className="label"><MessageSquare className="w-5 h-5 text-purple-300" /> Plataforma</label>
-            <select value={selectedPlatform} onChange={(e) => setSelectedPlatform(e.target.value)} className="input">
-              <option value="">Seleccionar...</option>
-              {Object.entries(platforms).map(([key, plat]: any) => (<option key={key} value={key}>{plat.icon} {plat.name}</option>))}
-            </select>
-          </motion.div>
+                    {/* Tipo de Contenido */}
+                    <motion.div whileHover={hoverPop} className="bg-white rounded-xl shadow-md p-6">
+                        <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3"><LayoutGrid className="w-5 h-5 text-orange-600" /> Tipo de Contenido *</label>
+                        <select value={contentType} onChange={(e) => { setContentType(e.target.value); setVideoFormat(''); setVideoDuration(''); setGeneratedContent(null); }} className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-orange-500 focus:outline-none">
+                            <option value="">Seleccionar...</option>
+                            {Object.entries(contentTypes).map(([key, type]) => (<option key={key} value={key}>{type}</option>))}
+                        </select>
+                    </motion.div>
+                </motion.section>
 
-          <motion.div whileHover={hoverPop} className="glass p-6">
-            <label className="label"><LayoutGrid className="w-5 h-5 text-amber-300" /> Tipo de Contenido</label>
-            <select value={contentType} onChange={(e) => setContentType(e.target.value)} className="input">
-              <option value="">Seleccionar...</option>
-              {Object.entries(contentTypes).map(([key, type]) => (<option key={key} value={key}>{type}</option>))}
-            </select>
-          </motion.div>
-        </motion.section>
+                {/* Opciones de Video (NUEVAS) */}
+                <AnimatePresence>
+                    {contentType === 'video-corto' && (
+                        <motion.section key="video-options" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {/* Formato de Video */}
+                            <motion.div whileHover={hoverPop} className="bg-white rounded-xl shadow-md p-6">
+                                <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3"><Video className="w-5 h-5 text-pink-600" /> Formato de Video *</label>
+                                <select value={videoFormat} onChange={(e) => setVideoFormat(e.target.value)} className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-pink-500 focus:outline-none">
+                                    <option value="">Seleccionar...</option>
+                                    {Object.entries(videoFormats).map(([key, format]) => (<option key={key} value={key}>{format}</option>))}
+                                </select>
+                            </motion.div>
 
-        <motion.div variants={item} className="text-center">
-          <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }} onClick={generateContent} className="btn-primary">
-            <Sparkles className="w-5 h-5" /> Generar Contenido
-          </motion.button>
-        </motion.div>
+                            {/* Duración */}
+                            <motion.div whileHover={hoverPop} className="bg-white rounded-xl shadow-md p-6">
+                                <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">⏱️ Duración *</label>
+                                <select value={videoDuration} onChange={(e) => setVideoDuration(e.target.value)} className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none">
+                                    <option value="">Seleccionar...</option>
+                                    {Object.entries(videoDurations).map(([key, dur]) => (<option key={key} value={key}>{dur}</option>))}
+                                </select>
+                            </motion.div>
+                        </motion.section>
+                    )}
+                </AnimatePresence>
+                
+                {/* Campos Personalizados (NUEVOS) */}
+                <motion.section variants={item} className="bg-white rounded-xl shadow-lg p-6">
+                    <div className="flex items-center gap-2 mb-4">
+                        <Edit className="w-6 h-6 text-indigo-600" />
+                        <h2 className="text-xl font-bold text-gray-900">Personaliza tu Contenido</h2>
+                    </div>
 
-        <AnimatePresence>
-          {selectedAudience && selectedPersona && (
-            <motion.section key="resume" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ type: 'spring', stiffness: 120, damping: 16 }} className="glass p-6">
-              <h3 className="text-xl font-bold mb-4">Resumen de Selección</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div style={{ borderLeft: `4px solid ${(audiences as any)[selectedAudience].color}` }} className="pl-4">
-                  <p className="text-sm text-slate-300">Audiencia</p>
-                  <p className="font-bold">{(audiences as any)[selectedAudience].name}</p>
-                  <p className="text-sm text-slate-300 mt-1">{(audiences as any)[selectedAudience].description}</p>
-                </div>
-                <div className="pl-4 border-l-4 border-emerald-400/60">
-                  <p className="text-sm text-slate-300">Buyer Persona</p>
-                  <p className="font-bold">{(audiences as any)[selectedAudience].personas[selectedPersona].name}</p>
-                  <p className="text-sm text-slate-300 mt-1">{(audiences as any)[selectedAudience].personas[selectedPersona].age}</p>
-                </div>
-                <div className="pl-4 border-l-4 border-fuchsia-400/60">
-                  <p className="text-sm text-slate-300">Plataforma y Contenido</p>
-                  <p className="font-bold">{selectedPlatform && (platforms as any)[selectedPlatform]?.name}</p>
-                  <p className="text-sm text-slate-300 mt-1">{contentType && (contentTypes as any)[contentType]}</p>
-                </div>
-              </div>
-            </motion.section>
-          )}
-        </AnimatePresence>
+                    {/* Solicitud Principal (Textarea) */}
+                    <div className="mb-4">
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                            📝 Solicitud Principal * (Describe qué contenido necesitas)
+                        </label>
+                        <textarea
+                            value={customRequest}
+                            onChange={(e) => { setCustomRequest(e.target.value); setGeneratedContent(null); }}
+                            placeholder='Ejemplo: "Promocionar la carrera de Ingeniería Industrial destacando que tenemos laboratorios con tecnología de punta y 90% de empleabilidad"'
+                            className="w-full p-4 border-2 border-gray-300 rounded-lg focus:border-indigo-500 focus:outline-none min-h-[120px] resize-y"
+                            maxLength={500}
+                        />
+                        <p className="text-xs text-gray-500 mt-1">{customRequest.length}/500 caracteres</p>
+                    </div>
 
-        <AnimatePresence>
-          {generatedContent && (
-            <motion.section key="content" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ type: 'spring', stiffness: 110, damping: 18 }} className="glass p-8">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold">Contenido Generado</h2>
-                <button onClick={() => navigator.clipboard.writeText(JSON.stringify(generatedContent, null, 2))} className="px-4 py-2 rounded-lg bg-white/10 border border-white/10 hover:bg-white/20 transition inline-flex items-center gap-2">
-                  <Copy className="w-4 h-4" /> Copiar Todo
-                </button>
-              </div>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                <div className="glass p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-bold">📌 Título/Headline</h3>
-                    <button onClick={() => navigator.clipboard.writeText(generatedContent.headline)} className="text-indigo-300 hover:underline text-sm">Copiar</button>
-                  </div>
-                  <p className="font-semibold">{generatedContent.headline}</p>
-                </div>
-                <div className="glass p-4 lg:col-span-2">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-bold">📝 Cuerpo del Mensaje</h3>
-                    <button onClick={() => navigator.clipboard.writeText(generatedContent.body)} className="text-indigo-300 hover:underline text-sm">Copiar</button>
-                  </div>
-                  <p className="whitespace-pre-line">{generatedContent.body}</p>
-                </div>
-                <div className="glass p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-bold">🎯 Call-to-Action (CTA)</h3>
-                    <button onClick={() => navigator.clipboard.writeText(generatedContent.cta)} className="text-indigo-300 hover:underline text-sm">Copiar</button>
-                  </div>
-                  <p className="font-semibold">{generatedContent.cta}</p>
-                </div>
-                <div className="glass p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-bold">🎨 Sugerencias Visuales</h3>
-                  <button onClick={() => navigator.clipboard.writeText(generatedContent.visualSuggestions)} className="text-indigo-300 hover:underline text-sm">Copiar</button>
-                  </div>
-                  <p className="whitespace-pre-line">{generatedContent.visualSuggestions}</p>
-                </div>
-                <div className="glass p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-bold">#️⃣ Hashtags</h3>
-                    <button onClick={() => navigator.clipboard.writeText(generatedContent.hashtags)} className="text-indigo-300 hover:underline text-sm">Copiar</button>
-                  </div>
-                  <p className="text-indigo-300 font-medium">{generatedContent.hashtags}</p>
-                </div>
-                <div className="glass p-4"><h3 className="font-bold mb-2">🎭 Tono de Comunicación</h3><p>{generatedContent.tone}</p></div>
-                <div className="glass p-4"><h3 className="font-bold mb-2">😊 Emojis Recomendados</h3><p className="text-2xl">{generatedContent.emojis}</p></div>
-              </div>
-            </motion.section>
-          )}
-        </AnimatePresence>
+                    {/* Campos Opcionales */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                🎯 Tema (opcional)
+                            </label>
+                            <select
+                                value={contentTopic}
+                                onChange={(e) => setContentTopic(e.target.value)}
+                                className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-indigo-500 focus:outline-none"
+                            >
+                                <option value="">Seleccionar tema...</option>
+                                {topicOptions.map((topic, idx) => (
+                                    <option key={idx} value={topic}>{topic}</option>
+                                ))}
+                            </select>
+                        </div>
 
-        <motion.footer variants={item} className="text-center text-slate-300 py-6">
-          <p className="text-sm">Generador de Contenidos UVP • Glass UI + Micro‑animaciones (Framer Motion)</p>
-        </motion.footer>
-      </motion.div>
-    </main>
-  );
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                ⭐ Beneficio Principal (opcional)
+                            </label>
+                            <input
+                                type="text"
+                                value={mainBenefit}
+                                onChange={(e) => setMainBenefit(e.target.value)}
+                                placeholder="Ej: 90% empleabilidad"
+                                className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-indigo-500 focus:outline-none"
+                                maxLength={100}
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                📲 CTA Personalizado (opcional)
+                            </label>
+                            <input
+                                type="text"
+                                value={customCTA}
+                                onChange={(e) => setCustomCTA(e.target.value)}
+                                placeholder="Ej: Agenda tu visita"
+                                className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-indigo-500 focus:outline-none"
+                                maxLength={80}
+                            />
+                        </div>
+                    </div>
+                </motion.section>
+
+                {/* Botón Generar (Centrado) */}
+                <motion.div variants={item} className="text-center">
+                    <motion.button
+                        whileHover={{ scale: 1.03 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={generateContent}
+                        disabled={isGenerating}
+                        className={`${
+                            isGenerating ? 'bg-gray-400' : 'bg-gradient-to-r from-purple-600 to-blue-600 hover:shadow-2xl hover:scale-105'
+                        } text-white px-8 py-4 rounded-xl font-bold text-lg shadow-xl transform transition-all duration-200 flex items-center gap-2 mx-auto disabled:opacity-60 disabled:cursor-not-allowed`}
+                    >
+                        <Sparkles className="w-6 h-6" />
+                        {isGenerating ? 'Generando Contenido...' : 'Generar Contenido Personalizado'}
+                    </motion.button>
+                </motion.div>
+
+                <AnimatePresence>
+                    {selectedAudience && selectedPersona && (
+                        <motion.section key="resume" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ type: 'spring', stiffness: 120, damping: 16 }} className="bg-white rounded-xl shadow-lg p-6">
+                            <h3 className="text-xl font-bold mb-4 text-gray-900">📋 Resumen de Selección</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div style={{ borderLeft: `4px solid ${selectedAudienceData.color}` }} className="pl-4">
+                                    <p className="text-sm text-gray-600">Audiencia</p>
+                                    <p className="font-bold text-gray-900">{selectedAudienceData.name}</p>
+                                    <p className="text-sm text-gray-600 mt-1">{selectedAudienceData.description}</p>
+                                </div>
+                                <div className="pl-4 border-l-4 border-green-500/60">
+                                    <p className="text-sm text-gray-600">Buyer Persona</p>
+                                    <p className="font-bold text-gray-900">{selectedPersonaData?.name}</p>
+                                    <p className="text-sm text-gray-600 mt-1">{selectedPersonaData?.age}</p>
+                                </div>
+                                <div className="pl-4 border-l-4 border-purple-500/60">
+                                    <p className="text-sm text-gray-600">Plataforma y Formato</p>
+                                    <p className="font-bold text-gray-900">{selectedPlatform && platforms[selectedPlatform]?.name}</p>
+                                    <p className="text-sm text-gray-600 mt-1">
+                                        {contentType && contentTypes[contentType]}
+                                        {contentType === 'video-corto' && videoFormat && ` - ${videoFormats[videoFormat]}`}
+                                    </p>
+                                </div>
+                            </div>
+                        </motion.section>
+                    )}
+                </AnimatePresence>
+
+                {/* Contenido Generado (Adaptado para manejar Video/Regular) */}
+                <AnimatePresence>
+                    {generatedContent && (
+                        <motion.section key="content" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ type: 'spring', stiffness: 110, damping: 18 }} className="bg-white rounded-xl shadow-2xl p-6 md:p-8">
+                            <div className="flex items-center justify-between mb-6">
+                                <h2 className="text-2xl font-bold text-gray-900">✨ Contenido Generado</h2>
+                                <button
+                                    onClick={() => copyToClipboard(generatedContent.isVideo ?
+                                        `${generatedContent.simpleScript}\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n${generatedContent.detailedScript}` :
+                                        `${generatedContent.headline}\n\n${generatedContent.body}\n\n${generatedContent.cta}\n\n${generatedContent.visualSuggestions}\n\n${generatedContent.hashtags}`
+                                    )}
+                                    className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                                >
+                                    <Copy className="w-4 h-4" /> Copiar Todo
+                                </button>
+                            </div>
+                            
+                            <div className="space-y-6">
+                                {generatedContent.isVideo ? (
+                                    <>
+                                        {/* Guion Simple */}
+                                        <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <h3 className="font-bold text-gray-700">📱 Guion Simple</h3>
+                                                <button onClick={() => copyToClipboard(generatedContent.simpleScript)} className="text-blue-600 hover:underline text-sm">Copiar</button>
+                                            </div>
+                                            <pre className="text-gray-900 whitespace-pre-wrap font-mono text-sm leading-relaxed">{generatedContent.simpleScript}</pre>
+                                        </div>
+
+                                        {/* Guion Detallado */}
+                                        <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <h3 className="font-bold text-gray-700">🎬 Guion Detallado (Producción)</h3>
+                                                <button onClick={() => copyToClipboard(generatedContent.detailedScript)} className="text-blue-600 hover:underline text-sm">Copiar</button>
+                                            </div>
+                                            {/* Usamos overflow-x-auto para que la tabla no rompa el diseño en móvil */}
+                                            <pre className="text-gray-900 whitespace-pre-wrap font-mono text-xs overflow-x-auto p-2 leading-relaxed">{generatedContent.detailedScript}</pre>
+                                        </div>
+                                    </>
+                                ) : (
+                                    // Output para contenido regular
+                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                                        <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <h3 className="font-bold text-gray-700">📌 Título/Headline</h3>
+                                                <button onClick={() => copyToClipboard(generatedContent.headline)} className="text-blue-600 hover:underline text-sm">Copiar</button>
+                                            </div>
+                                            <p className="text-gray-900 font-semibold">{generatedContent.headline}</p>
+                                        </div>
+                                        <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 lg:col-span-2">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <h3 className="font-bold text-gray-700">📝 Cuerpo del Mensaje</h3>
+                                                <button onClick={() => copyToClipboard(generatedContent.body)} className="text-blue-600 hover:underline text-sm">Copiar</button>
+                                            </div>
+                                            <p className="text-gray-900 whitespace-pre-line leading-relaxed">{generatedContent.body}</p>
+                                        </div>
+                                        <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <h3 className="font-bold text-gray-700">🎯 Call-to-Action (CTA)</h3>
+                                                <button onClick={() => copyToClipboard(generatedContent.cta)} className="text-blue-600 hover:underline text-sm">Copiar</button>
+                                            </div>
+                                            <p className="text-gray-900 font-semibold">{generatedContent.cta}</p>
+                                        </div>
+                                        <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <h3 className="font-bold text-gray-700">🎨 Sugerencias Visuales</h3>
+                                            <button onClick={() => copyToClipboard(generatedContent.visualSuggestions)} className="text-blue-600 hover:underline text-sm">Copiar</button>
+                                            </div>
+                                            <p className="text-gray-900 whitespace-pre-line">{generatedContent.visualSuggestions}</p>
+                                        </div>
+                                        <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <h3 className="font-bold text-gray-700">#️⃣ Hashtags</h3>
+                                                <button onClick={() => copyToClipboard(generatedContent.hashtags)} className="text-blue-600 hover:underline text-sm">Copiar</button>
+                                            </div>
+                                            <p className="text-blue-600 font-medium">{generatedContent.hashtags}</p>
+                                        </div>
+                                        <div className="bg-gray-50 rounded-lg p-4 border border-gray-200"><h3 className="font-bold mb-2 text-gray-700">🎭 Tono de Comunicación</h3><p className="text-gray-900">{generatedContent.tone}</p></div>
+                                        <div className="bg-gray-50 rounded-lg p-4 border border-gray-200"><h3 className="font-bold mb-2 text-gray-700">😊 Emojis Recomendados</h3><p className="text-2xl">{generatedContent.emojis}</p></div>
+                                    </div>
+                                )}
+                            </div>
+                        </motion.section>
+                    )}
+                </AnimatePresence>
+
+                <motion.footer variants={item} className="text-center text-gray-500 py-6">
+                    <p className="text-sm">UVP Content Generator v2.0 | Con IA personalizada por audiencias</p>
+                </motion.footer>
+            </motion.div>
+        </main>
+    );
 };
 
 export default UVPContentGenerator;
